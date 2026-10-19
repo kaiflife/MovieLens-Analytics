@@ -1,13 +1,14 @@
 import re
 
-# --- CONFIGURATION ---
 LIMIT = 1000
 
+DATA_DIR = "data"
+
 PATHS = {
-    "ratings": "data/ratings.csv",
-    "tags": "data/tags.csv",
-    "movies": "data/movies.csv",
-    "links": "data/links.csv",
+    "ratings": f"{DATA_DIR}/ratings.csv",
+    "tags": f"{DATA_DIR}/tags.csv",
+    "movies": f"{DATA_DIR}/movies.csv",
+    "links": f"{DATA_DIR}/links.csv",
 }
 
 REGEX = {

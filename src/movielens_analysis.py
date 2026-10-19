@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 from bs4 import BeautifulSoup
 
 import config
+from logger import log_method
 
 
 def _parse_csv_line(line: str) -> list[str]:
@@ -22,6 +23,7 @@ class Ratings:
         self.limit: int = limit or config.LIMIT
         self.data: list[dict] = self._read_rows()
 
+    @log_method
     def _read_rows(self) -> list[dict]:
         rows: list[dict] = []
         with open(self.path, encoding="utf-8") as f:
@@ -41,12 +43,14 @@ class Ratings:
                     )
         return rows
 
+    @log_method
     def get_movies_by_rating(self) -> dict[int, list[float]]:
         result: dict[int, list[float]] = defaultdict(list)
         for row in self.data:
             result[row["movieId"]].append(row["rating"])
         return dict(result)
 
+    @log_method
     def get_top_N_movies(self, N: int) -> list[tuple[int, float]]:
         movies_by_rating = self.get_movies_by_rating()
         averages: list[tuple[int, float]] = [
@@ -56,6 +60,7 @@ class Ratings:
         averages.sort(key=lambda x: (-x[1], x[0]))
         return averages[:N]
 
+    @log_method
     def get_movies_by_year(self, year: int) -> list[tuple[int, float]]:
         movie_ratings: dict[int, list[float]] = defaultdict(list)
         for row in self.data:
@@ -70,6 +75,7 @@ class Ratings:
         result.sort(key=lambda x: (-x[1], x[0]))
         return result
 
+    @log_method
     def get_average_rating_by_year(self) -> list[tuple[int, float]]:
         year_ratings: dict[int, list[float]] = defaultdict(list)
         for row in self.data:
@@ -107,6 +113,7 @@ class Tags:
                     )
         return rows
 
+    @log_method
     def get_most_words_tags(self, N: int) -> list[tuple[str, int]]:
         tag_word_counts: dict[str, int] = {
             row["tag"]: len(config.REGEX["word"].findall(row["tag"]))
@@ -114,11 +121,13 @@ class Tags:
         }
         return sorted(tag_word_counts.items(), key=lambda x: (-x[1], x[0]))[:N]
 
+    @log_method
     def get_longest_tag(self) -> str:
         if not self.data:
             return ""
         return max((row["tag"] for row in self.data), key=len)
 
+    @log_method
     def get_tags_with_specific_word(self, word: str) -> list[str]:
         word = word.lower()
         return list({row["tag"] for row in self.data if word in row["tag"].lower()})
@@ -130,6 +139,7 @@ class Movies:
         self.limit: int = limit or config.LIMIT
         self.data: list[dict] = self._read_rows()
 
+    @log_method
     def _read_rows(self) -> list[dict]:
         rows: list[dict] = []
         with open(self.path, encoding="utf-8") as f:
@@ -157,18 +167,21 @@ class Movies:
                     )
         return rows
 
+    @log_method
     def dist_by_release(self) -> dict[int, int]:
         year_counts: Counter = Counter(
             row["year"] for row in self.data if row["year"] is not None
         )
         return dict(sorted(year_counts.items()))
 
+    @log_method
     def dist_by_genres(self) -> dict[str, int]:
         genre_counts: Counter = Counter(
             genre for row in self.data for genre in row["genres"]
         )
         return dict(genre_counts.most_common())
 
+    @log_method
     def top_N_movies_by_rating(
         self, N: int, ratings: Ratings
     ) -> list[tuple[str, float]]:
@@ -186,6 +199,7 @@ class Movies:
             for m_id, avg in averages
         ]
 
+    @log_method
     def get_movies_by_title(self, substring: str) -> list[str]:
         substring = substring.lower()
         return [row["title"] for row in self.data if substring in row["title"].lower()]
@@ -197,6 +211,7 @@ class Links:
         self.limit: int = limit or config.LIMIT
         self.data: list[dict] = self._read_rows()
 
+    @log_method
     def _read_rows(self) -> list[dict]:
         rows: list[dict] = []
         with open(self.path, encoding="utf-8") as f:
@@ -215,17 +230,20 @@ class Links:
                     )
         return rows
 
+    @log_method
     def get_movie_id_by_imdb(self, imdb_id: str) -> int | None:
         imdb_id = str(imdb_id).zfill(7)
         return next(
             (row["movieId"] for row in self.data if row["imdbId"] == imdb_id), None
         )
 
+    @log_method
     def get_imdb_id_by_movie(self, movie_id: int) -> str | None:
         return next(
             (row["imdbId"] for row in self.data if row["movieId"] == movie_id), None
         )
 
+    @log_method
     def get_movie_info_by_imdb(self, imdb_id: str) -> dict:
         imdb_id = str(imdb_id).zfill(7)
         url = f"https://www.imdb.com/title/tt{imdb_id}/"
