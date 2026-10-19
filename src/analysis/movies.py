@@ -2,6 +2,7 @@ from collections import Counter
 
 import config
 from logger import log_method
+
 from .base import BaseDataLoader
 from .ratings import Ratings
 

@@ -1,15 +1,18 @@
 import os
 import re
+from pathlib import Path
+
+# Определяем корень проекта (папка src, где лежит config.py)
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
 
 LIMIT = 1000
 
-DATA_DIR = "data"
-
 PATHS = {
-    "ratings": f"{DATA_DIR}/ratings.csv",
-    "tags": f"{DATA_DIR}/tags.csv",
-    "movies": f"{DATA_DIR}/movies.csv",
-    "links": f"{DATA_DIR}/links.csv",
+    "ratings": str(DATA_DIR / "ratings.csv"),
+    "tags": str(DATA_DIR / "tags.csv"),
+    "movies": str(DATA_DIR / "movies.csv"),
+    "links": str(DATA_DIR / "links.csv"),
 }
 
 REGEX = {

@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import UTC, datetime
 
 from logger import log_method
+
 from .base import BaseDataLoader
 
 
