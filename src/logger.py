@@ -55,3 +55,20 @@ def log_method(func):
             raise
 
     return wrapper
+
+
+def setup_module_logger(module_name: str) -> logging.Logger:
+    """Sets up a logger for a specific module (writes to logs/{module_name}.log)."""
+    logger = logging.getLogger(module_name)
+    if not logger.handlers:
+        logger.setLevel(logging.INFO)
+        formatter = logging.Formatter(
+            fmt="%(asctime)s | %(levelname)-8s | %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        file_handler = logging.FileHandler(
+            LOG_DIR / f"{module_name}.log", encoding="utf-8"
+        )
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+    return logger
