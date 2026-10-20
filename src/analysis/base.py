@@ -34,3 +34,6 @@ class BaseDataLoader:
     def _parse_row(self, cols: list[str]) -> dict | None:
         """Abstract method to be implemented by subclasses."""
         raise NotImplementedError
+
+    def show(self, data):
+        print(data)
