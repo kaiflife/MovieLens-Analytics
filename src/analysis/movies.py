@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, defaultdict
 
 import config
 from logger import log_method
@@ -58,3 +58,19 @@ class Movies(BaseDataLoader):
     def get_movies_by_title(self, substring: str) -> list[str]:
         substring = substring.lower()
         return [row["title"] for row in self.data if substring in row["title"].lower()]
+
+    @log_method
+    def get_peak_year_by_genre(self) -> dict[str, int]:
+        """Возвращает год, в котором вышло больше всего фильмов для каждого жанра."""
+        genre_year_counts = defaultdict(Counter)
+        for row in self.data:
+            if row["year"]:
+                for genre in row["genres"]:
+                    genre_year_counts[genre][row["year"]] += 1
+
+        result = {}
+        for genre, years in genre_year_counts.items():
+            if years:
+                # Берем год с максимальным количеством фильмов
+                result[genre] = years.most_common(1)[0][0]
+        return result

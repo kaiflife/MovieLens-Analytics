@@ -60,3 +60,18 @@ class Ratings(BaseDataLoader):
             (year, round(sum(ratings) / len(ratings), 2))
             for year, ratings in sorted(year_ratings.items())
         ]
+
+    @log_method
+    def get_most_polarizing_movies(self, N: int) -> list[tuple[int, float, float]]:
+        """Возвращает фильмы с наибольшим стандартным отклонением оценок."""
+        movies_by_rating = self.get_movies_by_rating()
+        polarizing = []
+        for m_id, ratings in movies_by_rating.items():
+            if len(ratings) > 1:  # Нужно хотя бы 2 оценки для разброса
+                mean = sum(ratings) / len(ratings)
+                variance = sum((x - mean) ** 2 for x in ratings) / len(ratings)
+                std_dev = variance**0.5
+                polarizing.append((m_id, round(std_dev, 2), round(mean, 2)))
+
+        polarizing.sort(key=lambda x: -x[1])
+        return polarizing[:N]

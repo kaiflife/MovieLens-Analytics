@@ -1,9 +1,9 @@
-import json
 import os
 import urllib.error
 import urllib.request
 import uuid
 
+import config
 from logger import setup_module_logger
 
 logger = setup_module_logger("telegram_api")
@@ -36,39 +36,15 @@ def _build_multipart_body(fields: dict, file_field: str, file_path: str):
 class TelegramNotifier:
     """Class for sending Telegram notifications."""
 
-    def __init__(self, token: str, chat_id: str) -> None:
-        self.token = token
-        self.chat_id = chat_id
+    def __init__(self) -> None:
+        self.token = config.telegram_token
+        self.chat_id = config.telegram_chat_id
 
-    def send_notification(self, success: bool) -> None:
-        """Sends a text message to Telegram based on the success flag."""
-        if success:
-            text: str = "Привет, отчёт создан"
-        else:
-            text = "The report hasn't been created due to an error."
-
-        url: str = f"https://api.telegram.org/bot{self.token}/sendMessage"
-        payload: dict[str, str] = {"chat_id": self.chat_id, "text": text}
-        data: bytes = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(
-            url, data=data, headers={"Content-Type": "application/json"}
-        )
-
-        logger.info(f"Attempting to send Telegram notification (success={success})")
-
-        try:
-            with urllib.request.urlopen(req, timeout=10.0) as response:
-                logger.info("Bot successfully sent a message")
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8")
-            logger.error(f"Telegram API Error {e.code}: {error_body}")
-        except urllib.error.URLError as e:
-            logger.error(f"Telegram notification failed: network error ({e.reason})")
-
-    def send_document(self, file_path: str, caption: str = "") -> None:
+    def send_document(self) -> None:
         """Sends a file to Telegram."""
+        file_path = "src/movielens_report.ipynb"
         url: str = f"https://api.telegram.org/bot{self.token}/sendDocument"
-        fields = {"chat_id": self.chat_id, "caption": caption}
+        fields = {"chat_id": self.chat_id, "caption": "Отчёт группового проекта"}
         body, boundary = _build_multipart_body(fields, "document", file_path)
 
         req = urllib.request.Request(

@@ -1,3 +1,5 @@
+from collections import Counter
+
 import config
 from logger import log_method
 
@@ -33,3 +35,12 @@ class Tags(BaseDataLoader):
     def get_tags_with_specific_word(self, word: str) -> list[str]:
         word = word.lower()
         return list({row["tag"] for row in self.data if word in row["tag"].lower()})
+
+    @log_method
+    def get_top_words_in_tags(self, N: int) -> list[tuple[str, int]]:
+        """Возвращает самые частые отдельные слова во всех тегах."""
+        all_words = []
+        for row in self.data:
+            words = config.REGEX["word"].findall(row["tag"].lower())
+            all_words.extend(words)
+        return Counter(all_words).most_common(N)
